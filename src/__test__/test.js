@@ -7,39 +7,9 @@ const { Daemon } = require('../Daemon');
 const { Undead } = require('../Undead');
 const { Zombie } = require('../Zombie');
 
-const object = {
-  name: 'Vadim',
-  type: 'Daemon',
-  health: 100,
-  level: 1,
-  attack: 10,
-  defence: 40,
-};
-
 test.each([
-  [new Character('Vadim', 'Daemon'), 'Character'],
-  [new Bowerman('Vadim', 'Daemon'), 'Bowerman'],
-  [new Swordsman('Vadim', 'Daemon'), 'Swordsman'],
-  [new Magician('Vadim', 'Daemon'), 'Magician'],
-  [new Daemon('Vadim', 'Daemon'), 'Daemon'],
-  [new Undead('Vadim', 'Daemon'), 'Undead'],
-  [new Zombie('Vadim', 'Daemon'), 'Zombie'],
-])('test class %s', (person, expected) => {
-  object.className = expected;
-  expect({
-    name: person.name,
-    type: person.type,
-    health: person.health,
-    level: person.level,
-    attack: person.attack,
-    defence: person.defence,
-    className: person.constructor.name,
-  }).toEqual(object);
-});
-
-test.each([
-  ['Vadim', 'Swordsman', undefined],
-  [(10).toString(), 'Magician', undefined],
+  ['Vadim', 'Swordsman', true],
+  [(10).toString(), 'Magician', true],
 ])('test function checkArguments with %s name and %s type', (name, type, expected) => {
   const result = checkArguments(name, type);
   expect(result).toBe(expected);
@@ -57,8 +27,61 @@ test.each([
   expect(checkBadArguments).toThrow(expected);
 });
 
+const characters = [
+  {
+    name: 'Vadim', type: 'Daemon', health: 100, level: 1, attack: undefined, defence: undefined,
+  },
+  {
+    name: 'Vadim', type: 'Bowman', health: 100, level: 1, attack: 25, defence: 25,
+  },
+  {
+    name: 'Vadim', type: 'Swordsman', health: 100, level: 1, attack: 40, defence: 10,
+  },
+  {
+    name: 'Vadim', type: 'Magician', health: 100, level: 1, attack: 10, defence: 40,
+  },
+  {
+    name: 'Vadim', type: 'Daemon', health: 100, level: 1, attack: 10, defence: 40,
+  },
+  {
+    name: 'Vadim', type: 'Undead', health: 100, level: 1, attack: 25, defence: 25,
+  },
+  {
+    name: 'Vadim', type: 'Zombie', health: 100, level: 1, attack: 40, defence: 10,
+  },
+];
+
+test.each([
+  [new Character('Vadim', 'Daemon'), characters[0]],
+  [new Bowerman('Vadim'), characters[1]],
+  [new Swordsman('Vadim'), characters[2]],
+  [new Magician('Vadim'), characters[3]],
+  [new Daemon('Vadim'), characters[4]],
+  [new Undead('Vadim'), characters[5]],
+  [new Zombie('Vadim'), characters[6]],
+])('test class %s', (person, expected) => {
+  expect({
+    name: person.name,
+    type: person.type,
+    health: person.health,
+    level: person.level,
+    attack: person.attack,
+    defence: person.defence,
+  }).toEqual(expected);
+});
+
+test('test class Character with bad argumrnts', () => {
+  function creatObjectWithBadArguments() {
+    const characterGod = new Character('Vadim', 'God');
+    characterGod.health = 10000;
+  }
+  expect(creatObjectWithBadArguments).toThrow(new Error('Переданы некорректные значения!'));
+});
+
 test('test Character.levelUp', () => {
   const person = new Character('Vadim', 'Magician');
+  person.attack = 10;
+  person.defence = 40;
   person.levelUp();
   expect({
     level: person.level,
@@ -88,6 +111,8 @@ test.each([
   ['20', 100],
 ])('test Character.damage', (value, expected) => {
   const person = new Character('Vadim', 'Magician');
+  person.attack = 10;
+  person.defence = 40;
   person.damage(value);
   expect(person.health).toBe(expected);
 });
