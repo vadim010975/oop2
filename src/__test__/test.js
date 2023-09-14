@@ -1,4 +1,3 @@
-const { checkArguments } = require('../checkArguments');
 const { Character } = require('../Character');
 const { Bowerman } = require('../Bowerman');
 const { Swordsman } = require('../Swordsman');
@@ -7,29 +6,9 @@ const { Daemon } = require('../Daemon');
 const { Undead } = require('../Undead');
 const { Zombie } = require('../Zombie');
 
-test.each([
-  ['Vadim', 'Swordsman', true],
-  [(10).toString(), 'Magician', true],
-])('test function checkArguments with %s name and %s type', (name, type, expected) => {
-  const result = checkArguments(name, type);
-  expect(result).toBe(expected);
-});
-
-test.each([
-  [8, 'Magician', new Error('Переданы некорректные значения!')],
-  ['V', 'Magician', new Error('Переданы некорректные значения!')],
-  ['Vadim_Skupov', 'Magician', new Error('Переданы некорректные значения!')],
-  ['Vadim', 'God', new Error('Переданы некорректные значения!')],
-])('test function checkArguments with %s name and %s type', (name, type, expected) => {
-  function checkBadArguments() {
-    checkArguments(name, type);
-  }
-  expect(checkBadArguments).toThrow(expected);
-});
-
 const characters = [
   {
-    name: 'Vadim', type: 'Daemon', health: 100, level: 1, attack: undefined, defence: undefined,
+    name: 'Vadim', type: 'Daemon', health: 100, level: 1, attack: null, defence: null,
   },
   {
     name: 'Vadim', type: 'Bowman', health: 100, level: 1, attack: 25, defence: 25,
@@ -70,12 +49,16 @@ test.each([
   }).toEqual(expected);
 });
 
-test('test class Character with bad argumrnts', () => {
+test.each([
+  ['V', 'Magician', new Error('Имя должно содержать от 2 до 10 символов')],
+  ['Vadim_Skupov', 'Magician', new Error('Имя должно содержать от 2 до 10 символов')],
+  ['Vadim', 'God', new Error('Неизвестное существо')],
+])('test class Character with with %s name and %s type', (name, type, expected) => {
   function creatObjectWithBadArguments() {
-    const characterGod = new Character('Vadim', 'God');
-    characterGod.health = 10000;
+    const character = new Character(name, type);
+    character.heaith = 10000;
   }
-  expect(creatObjectWithBadArguments).toThrow(new Error('Переданы некорректные значения!'));
+  expect(creatObjectWithBadArguments).toThrow(expected);
 });
 
 test('test Character.levelUp', () => {
